@@ -1,0 +1,29 @@
+This is a Python script that defines classes for different types of baselines in reinforcement learning.
+
+The Baseline class is the base class for all baselines and contains several methods that must be implemented by its subclasses: wrap_dataset, 
+unwrap_batch, eval, get_learnable_parameters, epoch_callback, state_dict, and load_state_dict.
+
+The WarmupBaseline class is a subclass of Baseline that implements a warmup period during which a simpler baseline is used, gradually transitioning 
+to a more complex baseline. It takes a baseline, n_epochs, and warmup_exp_beta as arguments. The wrap_dataset and unwrap_batch methods call the 
+corresponding methods of the provided baseline if the warmup period has ended, otherwise they call the corresponding methods of an
+ExponentialBaseline instance with a given beta value. The eval method returns a convex combination of the baseline and the loss, where 
+the combination weight depends on the current epoch and the number of epochs for the warmup period. The epoch_callback method calls the
+corresponding method of the provided baseline and sets the warmup alpha value. The state_dict and load_state_dict methods only save and 
+load the state of the provided baseline.
+
+The NoBaseline class is a subclass of Baseline that implements a baseline that always returns 0 for both value and loss.
+
+The ExponentialBaseline class is a subclass of Baseline that implements a baseline that calculates the exponential moving average 
+of the mean of the critic outputs. It takes a beta value as an argument. The eval method returns the current value and 0 for the loss.
+The state_dict and load_state_dict methods only save and load the current value.
+
+The CriticBaseline class is a subclass of Baseline that implements a baseline that uses a critic network to estimate the value of the state. 
+It takes a critic network as an argument. The eval method returns the critic output and the mean squared error loss between the critic output 
+and the weighted sum of the critic outputs for the current and the previous state. The get_learnable_parameters method returns the critic network 
+parameters. The epoch_callback method does nothing. The state_dict and load_state_dict methods save and load the critic network state.
+
+The RolloutBaseline class is a subclass of Baseline that implements a baseline that uses rollout to estimate the value of the state. It takes a 
+model, a problem instance, and an options instance as arguments. The eval method returns the value obtained by rolling out the model and the
+mean squared error loss between the value and the weighted sum of the values for the current and the previous state. The get_learnable_parameters 
+method returns an empty list. The epoch_callback method updates the model and generates a baseline dataset. The state_dict and load_state_dict methods 
+save and load the model state.
