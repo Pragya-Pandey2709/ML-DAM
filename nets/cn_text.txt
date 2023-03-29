@@ -1,0 +1,15 @@
+This code defines two PyTorch neural network modules, CriticNetwork and ModifiedPointer_CriticNetwork,
+both of which inherit from the PyTorch nn.Module base class.
+
+CriticNetwork is a simple feedforward neural network with a graph attention encoder and a value head. The 
+GraphAttentionEncoder module is imported from a file nets.graph_encoder, and it takes in a tensor of shape
+(batch_size, graph_size, input_dim) representing the input graphs. The encoder outputs a tensor of shape 
+(batch_size, embedding_dim) representing the graph embeddings. The value_head is a simple two-layer feedforward 
+neural network that takes in the graph embeddings and outputs a single scalar value representing the predicted value of the input graph.
+
+ModifiedPointer_CriticNetwork is a modified version of CriticNetwork that replaces the graph attention encoder with a 1D 
+convolutional neural network. The input to the ModifiedPointer_CriticNetwork module is again a tensor of shape (batch_size, graph_size, 
+input_dim) representing the input graphs. The encoder is a 1D convolutional neural network with input_dim input channels, embedding_dim output 
+channels, and a kernel size of 1. The decoder is a 3-layer convolutional neural network that takes in the embeddings and outputs a scalar value 
+representing the predicted value of the input graph. This model does not use the GraphAttentionEncoder or value_head modules defined in CriticNetwork. 
+Instead, the decoder directly outputs the predicted value of the input graph.
