@@ -1,0 +1,91 @@
+This section imports the necessary Python libraries for the script. math is a standard library for mathematical functions, 
+torch is the PyTorch deep learning framework, os is a standard library for interfacing with the operating system, argparse is a
+library for parsing command-line arguments, numpy is a library for numerical operations, itertools is a library for combinatorial 
+operations, and tqdm is a library for displaying progress bars. The load_model and move_to functions are custom utilities defined in the 
+utils module for loading models and moving data to GPU. The save_dataset function is another custom utility for saving datasets to disk. 
+DataLoader is a PyTorch class for loading datasets, and time and timedelta are standard libraries for measuring time intervals. The 
+parse_softmax_temperature function is another custom utility for parsing softmax temperatures from command-line arguments. Finally, 
+mp is a context object for multiprocessing.
+
+
+
+
+This function takes in several parameters:
+
+sequences: a 3D numpy array of shape (n, m, k), where n is the number of solutions, m is the length of each solution, and k 
+is the number of features for each element in the solution.
+cost: a 1D numpy array of shape (n,), where each element is the cost of the corresponding solution in sequences.
+ids (optional): a 1D numpy array of shape (n,), where each element is the ID of the instance that the corresponding solution belongs to. 
+This is used to group the solutions by instance.
+batch_size (optional): an integer that specifies the number of instances to return. If batch_size is None, all instances are returned.
+The function first checks whether ids is None. If it is, it finds the index of the minimum cost solution and returns that solution and its 
+cost as a 1-element list.
+
+If ids is not None, the function splits the solutions by instance and finds the minimum cost solution for each instance. It then flattens the 
+cost and ids arrays into 1D arrays and finds the index of the minimum cost solutions. The all_argmin array contains the indices of the minimum 
+cost solutions, grouped by instance.
+
+The function creates an array result of length len(group_lengths) (or batch_size, if specified), filled with -1. For each instance, the function 
+sets the corresponding element in result to the index of the minimum cost solution for that instance. If batch_size is specified, the function 
+returns a list of length batch_size with the corresponding solutions and costs. If batch_size is not specified, the function returns a list of 
+length len(group_lengths) with the corresponding solutions and costs, padded with None and math.inf, respectively, if a solution was not found for
+a particular instance.
+
+
+
+
+
+
+This function is used to evaluate a dataset in parallel using multiple processes. It takes several arguments:
+
+args: A tuple that contains the following elements:
+dataset_path: The path to the dataset to be evaluated.
+width: The beam width to use during decoding.
+softmax_temp: The temperature to use during softmax calculation.
+opts: An object that contains various options related to the evaluation process.
+i: The index of the current process.
+num_processes: The total number of processes being used for parallel evaluation.
+The function first loads the trained model using the load_model function and then generates a validation dataset using the make_dataset method of 
+the problem associated with the model. The val_size variable is set to the number of samples in the dataset divided by the number of processes,
+and the offset is added to ensure that each process evaluates a unique subset of the dataset.
+
+The function then creates a PyTorch device object corresponding to the current process's GPU, if available. Finally, it calls the _eval_dataset 
+function to evaluate the dataset using the given model, beam width, softmax temperature, and device, and returns the result.
+
+
+
+
+This function evaluates a TSP model on a given dataset. It takes four arguments:
+
+dataset_path: a string representing the path to the dataset file
+width: an integer representing the number of edges to consider during beam search
+softmax_temp: a float representing the temperature for the softmax function used during decoding
+opts: an object containing various options for the evaluation, such as model, val_size, offset, no_cuda, 
+multiprocessing, eval_batch_size, decode_strategy, results_dir, o, f
+The function first loads the TSP model using load_model() and checks whether or not to use multiprocessing to speed up the evaluation. 
+If multiprocessing is used, it splits the dataset into equal parts for each available GPU and evaluates each part in parallel using eval_dataset_mp().
+Otherwise, it evaluates the entire dataset on a single GPU using _eval_dataset().
+
+The function then calculates statistics on the results, such as the average cost, serial and parallel durations, and the calculated total duration. 
+It saves the results to a file with a specific naming convention that includes the dataset name, model name, decoding strategy, and other relevant 
+information.
+
+Finally, the function returns the costs, tours, and durations of the evaluation.
+
+
+
+
+This is a function in Python that evaluates a given dataset using a specified model. Here is a summary of what it does:
+The function takes as input a model, a dataset, a width (integer), a softmax temperature (float), some options (opts), and a device (string).
+The function moves the model to the specified device and sets its mode to evaluation mode.
+The function sets the decoding strategy of the model based on the provided options (either "greedy" or "sampling"), and sets the softmax temperature accordingly.
+The function creates a DataLoader object from the dataset and loops through it.
+For each batch in the DataLoader, the function moves the batch to the specified device and evaluates the model on the batch using the chosen decoding strategy.
+If the decoding strategy is "sample" or "greedy", the function generates a specified number of sequences for each item in the batch using the model's sample_many method. If the decoding strategy is "bs" (beam search), the function performs beam search on the batch using the model's beam_search method.
+The function then selects the best sequence for each item in the batch and adds the result to a list.
+Finally, the function returns a list of tuples containing the cost, sequence, and duration for each item in the batch.
+
+
+
+
+
