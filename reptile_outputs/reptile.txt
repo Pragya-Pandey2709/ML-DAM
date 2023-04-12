@@ -1,0 +1,18 @@
+Reptile is a meta-learning algorithm that utilizes the Shortest Descent algorithm for updating initial parameters towards the final parameters 
+learned on a specific task. The algorithm involves repeatedly sampling a task, performing stochastic gradient descent (SGD) on it, and updating the 
+initial parameters in the direction of the final parameters obtained from that task.
+
+The algorithm starts with an initial set of parameters, which are then used to train a model on a task sampled from a set of tasks. The model is 
+updated using SGD, a commonly used optimization technique, to minimize the loss on the sampled task. After a few iterations of SGD, the updated
+parameters are considered as the final parameters learned for that task. The initial parameters are then updated towards these final parameters 
+by taking a small step in their direction. This process is repeated for multiple tasks, with the initial parameters being updated incrementally 
+after each task.
+
+The Shortest Descent algorithm, on which Reptile is based, is a form of first-order meta-learning, where the model is updated directly based on the 
+final parameters learned from each task. This is in contrast to higher-order meta-learning algorithms, such as the well-known MAML (Model-Agnostic 
+Meta-Learning), which require computing higher-order derivatives and can be computationally expensive.
+
+Reptile only requires black-box access to an optimizer, such as SGD or Adam, which makes it computationally efficient and easy to implement. It is 
+mathematically similar to first-order MAML, but with a more straightforward update rule based on the Shortest Descent algorithm. Despite its simplicity, 
+Reptile has been shown to achieve competitive performance in various meta-learning tasks, making it a promising approach for efficient and effective 
+meta-learning.
